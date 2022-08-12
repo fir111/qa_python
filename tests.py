@@ -24,108 +24,97 @@ class TestBooksCollector:
     # чтобы тесты были независимыми в каждом из них создавай отдельный экземпляр класса BooksCollector()
     def test_initialize_books_rating_as_dict(self):
         collector = BooksCollector()
-        assert isinstance(collector.books_rating, dict) and not collector.books_rating
+        books_rating_dict = collector.get_books_rating()
+        assert isinstance(books_rating_dict, dict) and not books_rating_dict
 
     def test_initialize_favorites_as_list(self):
         collector = BooksCollector()
-        assert isinstance(collector.favorites, list) and not collector.favorites
+        favorites_list = collector.get_list_of_favorites_books()
+        assert isinstance(favorites_list, list) and not favorites_list
 
     def test_add_new_book_add_book_book_in_books_rating(self):
         collection = BooksCollector()
         book = 'New Book'
         collection.add_new_book(book)
-        collected_books = collection.books_rating
+        collected_books = collection.get_books_rating()
         assert collected_books and book in collected_books
+
+    def test_add_new_book_add_book_book_in_books_rating_equal_1(self):
+        collection = BooksCollector()
+        book = 'New Book'
+        collection.add_new_book(book)
+        actual_rating = collection.get_book_rating(book)
+        assert actual_rating == 1
 
     def test_add_new_book_add_duplicate_book_book_not_in_books_rating(self):
         collection = BooksCollector()
         book = 'New Book'
         collection.add_new_book(book)
-        collection.set_book_rating(book, 5)
+        new_rating = randint(1,10)
+        collection.set_book_rating(book, new_rating)
         collection.add_new_book(book)
-        collected_books = collection.books_rating
-        assert collected_books[book] == 5
+        actual_books = collection.get_books_rating()
+        actual_rating = collection.get_book_rating(book)  # рейтинг должен установиться 1, если книга перезаписалась
+        assert len(actual_books) == 1 and actual_rating == new_rating
 
-    def test_add_new_book_add_book_check_rating_equal_1(self):
-        collection = BooksCollector()
-        book = 'New Book'
-        collection.add_new_book(book)
-        collected_books = collection.books_rating
-        assert collected_books[book] == 1
-
-    def test_set_book_rating_rating_in_range_1_10_check_equal(self):
+    def test_set_book_rating_rating_in_range_1_10_is_equal(self):
         collection = BooksCollector()
         book = 'New Book'
         new_rating = randint(1, 10)
         collection.add_new_book(book)
         collection.set_book_rating(book,new_rating)
-        collected_books = collection.books_rating
-        assert collected_books[book] == new_rating
+        actual_rating = collection.get_book_rating(book)
+        assert actual_rating == new_rating
 
     def test_set_rating_rating_less_1_not_set(self):
         collection = BooksCollector()
         book = 'New Book'
-        rating = 5
+        new_rating = randint(1, 10)
         collection.add_new_book(book)
-        collection.set_book_rating(book,rating)
+        collection.set_book_rating(book,new_rating)
         collection.set_book_rating(book, 0)
-        collected_books = collection.books_rating
-        assert collected_books[book] == rating
+        actual_rating = collection.get_book_rating(book)
+        assert actual_rating != 0 and actual_rating == new_rating
 
     def test_set_rating_rating_greater_10_not_set(self):
         collection = BooksCollector()
         book = 'New Book'
-        rating = 5
+        new_rating = randint(1,10)
         collection.add_new_book(book)
-        collection.set_book_rating(book,rating)
+        collection.set_book_rating(book,new_rating)
         collection.set_book_rating(book, 11)
-        collected_books = collection.books_rating
-        assert collected_books[book] == rating
+        actual_rating = collection.get_book_rating(book)
+        assert actual_rating != 11 and actual_rating == new_rating
 
     def test_set_rating_rating_10_set(self):
         collection = BooksCollector()
         book = 'New Book'
-        rating = 10
+        new_rating = 10
         collection.add_new_book(book)
-        collection.set_book_rating(book,rating)
-        collected_books = collection.books_rating
-        assert collected_books[book] == rating
+        collection.set_book_rating(book,new_rating)
+        actual_rating = collection.get_book_rating(book)
+        assert actual_rating == new_rating
+
+    def test_set_rating_book_not_added_in_books_rating_not_in_book_rating(self):
+        collection = BooksCollector()
+        not_book = 'Not existing book'
+        collection.set_book_rating(not_book, randint(1, 10))
+        collected_books = collection.get_books_rating()
+        assert not_book not in collected_books
 
     def test_set_rating_book_is_not_in_books_rating_not_set(self):
         collection = BooksCollector()
-        book = 'Book'
-        collection.add_new_book(book)
-        not_book = 'Not added book'
-        collection.set_book_rating(book,randint(1, 10))
-        collected_books = collection.books_rating
-        assert not_book not in collected_books
-
-    def test_get_book_rating_existing_book_correct_rating(self):
-        collection = BooksCollector()
-        book = 'Book'
-        rating = randint(1,10)
-        collection.add_new_book(book)
-        collection.set_book_rating(book,rating)
-        checked_rating = collection.get_book_rating(book)
-        assert checked_rating == rating
-
-    def test_get_book_rating_not_existing_book_no_rating(self):
-        collection = BooksCollector()
-        book = 'Book'
-        rating = 5
-        collection.add_new_book(book)
-        collection.set_book_rating(book,rating)
-        not_existing_book = 'Another book'
-        checked_rating = collection.get_book_rating(not_existing_book)
-        assert checked_rating is None
+        not_book = 'Not existing book'
+        collection.set_book_rating(not_book, randint(1, 10))
+        assert collection.get_book_rating(not_book) is None
 
     def test_get_book_rating_existing_book_is_equal(self):
         collector = BooksCollector()
         existing_book = 'book'
-        rating = randint(1, 10)
+        new_rating = randint(1, 10)
         collector.add_new_book(existing_book)
-        collector.set_book_rating(existing_book, rating)
-        assert collector.get_book_rating(existing_book) == rating
+        collector.set_book_rating(existing_book, new_rating)
+        assert collector.get_book_rating(existing_book) == new_rating
 
     def test_get_book_rating_not_existing_book_is_none(self):
         collector = BooksCollector()
@@ -201,6 +190,15 @@ class TestBooksCollector:
         collection.add_book_in_favorites(not_existing_book)
         collection.add_book_in_favorites(existing_book)
         assert not_existing_book not in collection.get_list_of_favorites_books()
+
+    def test_get_list_of_favorites_books_add_books_in_favorites_is_equal(self):
+        collection = BooksCollector()
+        books = ['book1', 'book2', 'book3']
+        for book in books:
+            collection.add_new_book(book)
+        for book in books:
+            collection.add_book_in_favorites(book)
+        assert collection.get_list_of_favorites_books() == books
 
     def test_get_list_of_favorites_books_not_add_book_in_favorites_is_empty(self):
         collection = BooksCollector()
