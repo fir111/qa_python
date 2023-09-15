@@ -72,5 +72,5 @@
 
 
 ### Тесты `delete_book_from_favorites(self, name)`
-
+###
 `test_delete_book_from_favorites_deleted_book_is_not_in_favorites` - проверка того, что добавленная в фавориты книга удаляется из списка
